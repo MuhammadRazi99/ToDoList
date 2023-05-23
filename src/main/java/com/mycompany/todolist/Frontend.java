@@ -8,9 +8,14 @@ import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Iterator;
+
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 /**
  *
@@ -154,7 +159,7 @@ public class Frontend extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(Delete)
                     .addComponent(Update, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(Add))
@@ -192,27 +197,11 @@ public class Frontend extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void AddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddActionPerformed
+    private void AddActionPerformed(java.awt.event.ActionEvent evt) {                                    
         // TODO add your handling code here:
-        if(TitleField.getText()==""){
-            JOptionPane.showMessageDialog(null, "Add Title.", "Alert", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        else if(DetailField.getText()==""){
-            JOptionPane.showMessageDialog(null, "Add Detail.", "Alert", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        boolean isImp=ImportantField.isSelected();
-        ToDoList td=new ToDoList(TitleField.getText(),DetailField.getText(),isImp);
-        if(isImp){
-            this.todosImp.add(td);
-        }
-        else{
-            this.todos.add(td);
-        }
-        start();
-    }//GEN-LAST:event_AddActionPerformed
-
+        addFunction();
+    }
+    
     private void UpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UpdateActionPerformed
         // TODO add your handling code here:
         addFunction();
@@ -249,14 +238,29 @@ public class Frontend extends javax.swing.JFrame {
         this.todos.add(td);
         }
         start();
-
+        TitleField.setText("");
+        DetailField.setText("");
+        ImportantField.setSelected(false);
     }
     public void deleteFunction(){
         DetailField.setText("");
         TitleField.setText("");
-        ImportantField.setEnabled(false);
-        todos.remove(select);
-        todosImp.remove(select);
+        ImportantField.setSelected(false);
+        Iterator<ToDoList> iterator = todos.iterator();
+        while (iterator.hasNext()) {
+            ToDoList d = iterator.next();
+            if(select.getTitle()==d.getTitle() && select.getDetails()==d.getDetails() && select.isImportant()==d.isImportant()){
+                iterator.remove();
+            }
+        }
+        iterator = todosImp.iterator();
+        while (iterator.hasNext()) {
+            ToDoList d = iterator.next();
+            if(select.getTitle()==d.getTitle() && select.getDetails()==d.getDetails() && select.isImportant()==d.isImportant()){
+                iterator.remove();
+            }
+        }
+        start();
         Delete.setEnabled(false);
         Update.setEnabled(false);
     }
@@ -264,19 +268,20 @@ public class Frontend extends javax.swing.JFrame {
         DisplayPanel.removeAll();
         DisplayPanel.revalidate();
         DisplayPanel.repaint();
+        DisplayPanel.setLayout(new BoxLayout(DisplayPanel, BoxLayout.Y_AXIS));
         for(ToDoList td : this.todosImp) {
-            DisplayPanel.add(makeJButton(td));
+            makeJButton(td);
         }
         for(ToDoList td : this.todos) {
-            DisplayPanel.add(makeJButton(td));
+            makeJButton(td);
         }
     }
 
-    public JButton makeJButton(ToDoList td) {
+    public void makeJButton(ToDoList td) {
         JButton btn = new JButton();
         btn.setText(td.getTitle());
         btn.setBorder(BorderFactory.createEmptyBorder(10, 8, 10, 8));
-        btn.setSize(40,20);
+        btn.setSize(450,50);
         btn.setForeground(Color.black);
         btn.setBackground(Color.white);
         btn.addMouseListener(new MouseAdapter() {
@@ -292,7 +297,7 @@ public class Frontend extends javax.swing.JFrame {
                 }
             }
         });
-        return btn;
+        DisplayPanel.add(btn);
     }
     public void setSelect(ToDoList td){
         this.select=td;
@@ -302,7 +307,7 @@ public class Frontend extends javax.swing.JFrame {
         DetailField.setText(select.getDetails());
         TitleField.setText(select.getTitle());
         if(select.isImportant()){
-        ImportantField.setEnabled(true);            
+        ImportantField.setSelected(true);            
         }
         Update.setEnabled(true);
         Delete.setEnabled(true);
